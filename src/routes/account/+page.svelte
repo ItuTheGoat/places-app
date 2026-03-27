@@ -60,20 +60,7 @@
 	};
 </script>
 
-{#if authStore.currentUser === undefined || authStore.isLoading}
-	<div class="mx-auto max-w-md">
-		<div class="alert alert-info shadow-sm">
-			<span>Loading account...</span>
-		</div>
-	</div>
-{:else if !authStore.isAuthenticated}
-	<div class="mx-auto max-w-md">
-		<div class="alert alert-warning shadow-sm">
-			<span>You need to sign in first.</span>
-			<a href="/auth" class="link font-medium">Go to sign in</a>
-		</div>
-	</div>
-{:else}
+{#if authStore.currentUser}
 	<div class="mx-auto flex w-full max-w-md flex-col gap-4">
 		{#if authStore.error}
 			<div class="alert alert-error shadow-sm">

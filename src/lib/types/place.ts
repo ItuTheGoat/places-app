@@ -9,6 +9,13 @@ export type PlaceCategory = (typeof PLACE_CATEGORIES)[number];
 export type PlaceStatus = (typeof PLACE_STATUSES)[number];
 export type PlacePriority = (typeof PLACE_PRIORITIES)[number];
 export type PlaceVibe = (typeof PLACE_VIBES)[number];
+export type PlaceSortKey = 'date_desc' | 'date_asc' | 'name_asc' | 'name_desc' | 'priority_desc';
+export type PlaceFilterState = {
+	category: PlaceCategory | 'all';
+	status: PlaceStatus | 'all';
+	priority: PlacePriority | 'all';
+	location: string | 'all';
+};
 
 export type PlaceDoc = {
 	listId: string;

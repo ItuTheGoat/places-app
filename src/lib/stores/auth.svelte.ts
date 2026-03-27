@@ -47,6 +47,7 @@ const createAuthStore = () => {
 	let isInitInFlight = false;
 	let hasResolvedInitialAuth = false;
 
+	/** `undefined` = auth not resolved yet; `null` = signed out; `User` = signed in */
 	let currentUser = $state<User | null | undefined>(undefined);
 	let status = $state<AuthStatus>('loading');
 	let error = $state<string | null>(null);
