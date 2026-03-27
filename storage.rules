@@ -1,0 +1,26 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function placeRef(placeId) {
+      return /databases/(default)/documents/places/$(placeId);
+    }
+
+    function listRef(listId) {
+      return /databases/(default)/documents/lists/$(listId);
+    }
+
+    function canAccessPlace(placeId) {
+      return isSignedIn()
+        && exists(placeRef(placeId))
+        && request.auth.uid in get(listRef(get(placeRef(placeId)).data.listId)).data.memberIds;
+    }
+
+    match /places/{placeId}/{imageFile} {
+      allow read, write: if canAccessPlace(placeId);
+    }
+  }
+}
