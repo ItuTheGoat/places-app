@@ -23,6 +23,8 @@
 	}: Props = $props();
 
 	let previewUrlById = $state<Record<string, string>>({});
+	/** Avoid re-mapping `initialImageUrls` on every parent update (wipes user edits). */
+	let didHydrateInitialImages = $state(false);
 
 	function revokePreview(id: string) {
 		const url = previewUrlById[id];
@@ -46,15 +48,18 @@
 
 	$effect(() => {
 		if (mode !== 'edit') return;
+		if (didHydrateInitialImages) return;
 		if (initialImageUrls.length === 0) return;
-		imageItems = initialImageUrls.map((url) => ({
+		const next = initialImageUrls.map((url) => ({
 			id: crypto.randomUUID(),
 			kind: 'existing' as const,
 			url
 		}));
 		const main = initialMainImageUrl ?? initialImageUrls[0];
-		const found = imageItems.find((i) => i.kind === 'existing' && i.url === main);
-		mainImageId = found?.id ?? imageItems[0]?.id ?? null;
+		const found = next.find((i) => i.kind === 'existing' && i.url === main);
+		imageItems = next;
+		mainImageId = found?.id ?? next[0]?.id ?? null;
+		didHydrateInitialImages = true;
 	});
 
 	function onFilesSelected(ev: Event) {
