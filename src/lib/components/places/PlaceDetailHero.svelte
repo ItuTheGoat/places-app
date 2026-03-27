@@ -23,7 +23,7 @@
 </script>
 
 <div class="overflow-hidden rounded-2xl bg-base-200 ring-1 ring-white/5">
-	<figure class="aspect-[21/9] w-full bg-base-300 sm:aspect-video">
+	<figure class="aspect-21/9 w-full bg-base-300 sm:aspect-video">
 		{#if displaySrc}
 			<img
 				src={displaySrc}
@@ -32,7 +32,7 @@
 			/>
 		{:else}
 			<div
-				class="flex h-full min-h-[12rem] w-full items-center justify-center"
+				class="flex h-full min-h-48 w-full items-center justify-center"
 				aria-hidden="true"
 			>
 				<i class="fa-solid fa-image text-5xl opacity-25"></i>
