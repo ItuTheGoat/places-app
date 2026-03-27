@@ -12,6 +12,11 @@
 
 	onMount(() => {
 		void authStore.init();
+		if (import.meta.env.PROD) {
+			void import('virtual:pwa-register').then(({ registerSW }) => {
+				registerSW({ immediate: true });
+			});
+		}
 	});
 
 	$effect(() => {
@@ -25,6 +30,9 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<link rel="manifest" href="/manifest.json" />
+	<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+	<meta name="theme-color" content="#22C55E" />
 </svelte:head>
 
 {#if authStore.currentUser === undefined}
