@@ -68,7 +68,7 @@
 				</button>
 				<ul class="menu dropdown-content z-1 mt-2 w-44 rounded-box bg-base-100 p-2 shadow">
 					{#if authStore.isAuthenticated}
-						<li><a href="/">Home</a></li>
+						<li><a href="/">My Feed</a></li>
 						<li><a href="/account">Account</a></li>
 						<li>
 							<button type="button" onclick={() => void authStore.signOut()}>Sign out</button>

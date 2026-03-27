@@ -287,7 +287,7 @@
 
 <section class="space-y-4 pb-24">
 	<div class="flex flex-wrap items-center justify-between gap-3">
-		<h2 class="text-2xl font-bold">Places</h2>
+		<h2 class="text-2xl font-bold">My Feed</h2>
 		<div class="flex flex-wrap items-center gap-2">
 			<a href="/lists/new" class="btn btn-ghost btn-sm">
 				<i class="fa-solid fa-list-ul mr-2" aria-hidden="true"></i>
