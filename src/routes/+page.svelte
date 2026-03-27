@@ -478,7 +478,7 @@
 								/>
 							{:else}
 								<div
-									class="flex h-full min-h-[8rem] w-full items-center justify-center bg-base-300"
+									class="flex h-full min-h-32 w-full items-center justify-center bg-base-300"
 									aria-hidden="true"
 								>
 									<i class="fa-solid fa-image text-4xl opacity-25"></i>
