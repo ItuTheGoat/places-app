@@ -5,6 +5,7 @@
 	import '../app.css';
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 	import favicon from '$lib/assets/favicon.svg';
+	import MobileTabBar from '$lib/components/MobileTabBar.svelte';
 	import { authStore } from '$lib/stores/auth.svelte';
 
 	let { children } = $props();
@@ -62,7 +63,7 @@
 					<span class="loading loading-spinner loading-xs" aria-label="Working"></span>
 				{/if}
 			</h1>
-			<div class="dropdown dropdown-end">
+			<div class="dropdown dropdown-end hidden md:block">
 				<button class="btn btn-ghost btn-square" aria-label="Open navigation menu">
 					<i class="fa-solid fa-bars text-lg"></i>
 				</button>
@@ -81,14 +82,18 @@
 			</div>
 		</header>
 
-		<main class="flex-1 px-4 pb-6 pt-2">
+		<main class="flex-1 px-4 pb-20 pt-2 md:pb-6">
 			<div class="mx-auto w-full max-w-3xl">
 				{@render children()}
 			</div>
 		</main>
 
-		<footer class="bg-base-100 px-4 py-3">
+		<footer class="hidden bg-base-100 px-4 py-3 md:block">
 			<p class="text-center text-xs opacity-70">© 2026 NxtUp. All rights reserved.</p>
 		</footer>
+
+		{#if authStore.isAuthenticated}
+			<MobileTabBar />
+		{/if}
 	</div>
 {/if}

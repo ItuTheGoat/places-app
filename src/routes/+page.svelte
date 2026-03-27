@@ -284,7 +284,7 @@
 	}
 </script>
 
-<section class="space-y-4 pb-24">
+<section class="space-y-4 pb-4 md:pb-24">
 	<div class="flex flex-wrap items-center justify-between gap-3">
 		<h2 class="text-2xl font-bold">My Feed</h2>
 		<div class="flex flex-wrap items-center gap-2">
@@ -553,7 +553,7 @@
 
 	<a
 		href="/places/new"
-		class="btn btn-primary btn-circle fixed bottom-6 right-4 z-50 shadow-lg md:bottom-8 md:right-8"
+		class="btn btn-primary btn-circle fixed bottom-6 right-4 z-40 hidden shadow-lg md:bottom-8 md:right-8 md:inline-flex"
 		aria-label="Create new place"
 	>
 		<i class="fa-solid fa-plus text-lg" aria-hidden="true"></i>

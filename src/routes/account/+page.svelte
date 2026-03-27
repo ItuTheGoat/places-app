@@ -134,6 +134,14 @@
 		<section class="card bg-base-200 shadow-sm">
 			<div class="card-body gap-3">
 				<h2 class="card-title text-base">Account actions</h2>
+				<button
+					class="btn btn-outline btn-neutral w-full sm:w-auto"
+					type="button"
+					onclick={() => void authStore.signOut()}
+					disabled={authStore.isWorking}
+				>
+					Sign out
+				</button>
 				{#if authStore.currentUser?.email}
 					<button class="btn btn-secondary" type="button" onclick={onSendReset} disabled={authStore.isWorking}>
 						Send password reset email
