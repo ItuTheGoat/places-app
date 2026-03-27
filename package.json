@@ -4,20 +4,35 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "vite dev",
+		"dev": "vite dev --mode dev",
+		"prod": "vite dev --mode prod",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"lint": "eslint .",
+		"lint:unused": "eslint . --max-warnings 0 --rule \"no-unused-vars: off\" --rule \"@typescript-eslint/no-unused-vars: error\""
 	},
 	"devDependencies": {
+		"@eslint/js": "^10.0.1",
 		"@sveltejs/adapter-auto": "^7.0.0",
 		"@sveltejs/kit": "^2.50.2",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",
+		"@tailwindcss/vite": "^4.2.2",
+		"daisyui": "^5.5.19",
+		"eslint": "^10.1.0",
+		"eslint-plugin-svelte": "^3.16.0",
+		"globals": "^17.4.0",
 		"svelte": "^5.54.0",
 		"svelte-check": "^4.4.2",
+		"tailwindcss": "^4.2.2",
 		"typescript": "^5.9.3",
+		"typescript-eslint": "^8.57.2",
 		"vite": "^7.3.1"
+	},
+	"dependencies": {
+		"@fortawesome/fontawesome-free": "^7.2.0",
+		"firebase": "^12.11.0"
 	}
 }
