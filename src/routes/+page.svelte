@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { authStore } from '$lib/stores/auth.svelte';
@@ -428,7 +427,7 @@
 				<p class="max-w-sm text-sm opacity-70">
 					Add your first place to a shared list and it will show up here.
 				</p>
-				<a href={resolve('/places/new')} class="btn btn-primary">
+				<a href="/places/new" class="btn btn-primary">
 					<i class="fa-solid fa-plus mr-2" aria-hidden="true"></i>
 					Create place
 				</a>
@@ -440,7 +439,7 @@
 				<div class="group space-y-2">
 					<div class="flex items-baseline justify-between gap-3 px-0.5">
 						<a
-							href={resolve(`/places/${place.id}`)}
+							href={`/places/${place.id}`}
 							class="min-w-0 flex-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
 						>
 							<h3
@@ -456,7 +455,7 @@
 								{toTitleCase(place.priority)}
 							</span>
 							<a
-								href={resolve(`/places/${place.id}/edit`)}
+								href={`/places/${place.id}/edit`}
 								class="btn btn-ghost btn-xs opacity-80 hover:opacity-100"
 								aria-label="Edit {place.name}"
 							>
@@ -465,7 +464,7 @@
 						</div>
 					</div>
 					<a
-						href={resolve(`/places/${place.id}`)}
+						href={`/places/${place.id}`}
 						class="block overflow-hidden rounded-2xl bg-base-200 shadow-lg shadow-black/25 ring-1 ring-white/5 transition hover:ring-primary/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
 					>
 					<article class="overflow-hidden">
@@ -553,7 +552,7 @@
 	</div>
 
 	<a
-		href={resolve('/places/new')}
+		href="/places/new"
 		class="btn btn-primary btn-circle fixed bottom-6 right-4 z-50 shadow-lg md:bottom-8 md:right-8"
 		aria-label="Create new place"
 	>

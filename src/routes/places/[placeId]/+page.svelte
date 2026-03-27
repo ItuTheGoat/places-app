@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { getListById, getPlaceById } from '$lib/firebase/firestore';
@@ -64,13 +63,13 @@
 
 <section class="space-y-6 pb-24">
 	<div class="flex flex-wrap items-center justify-between gap-3">
-		<a href={resolve('/')} class="btn btn-ghost btn-sm gap-2 rounded-xl">
+		<a href="/" class="btn btn-ghost btn-sm gap-2 rounded-xl">
 			<i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
 			Back
 		</a>
 		{#if place}
 			<a
-				href={resolve(`/places/${place.id}/edit`)}
+				href={`/places/${place.id}/edit`}
 				class="btn btn-primary btn-sm rounded-xl gap-2"
 			>
 				<i class="fa-solid fa-pen" aria-hidden="true"></i>
@@ -81,7 +80,7 @@
 
 	{#if loadError}
 		<div class="alert alert-error text-sm" role="alert">{loadError}</div>
-		<p class="text-sm"><a href={resolve('/')} class="link link-primary">Back to home</a></p>
+		<p class="text-sm"><a href="/" class="link link-primary">Back to home</a></p>
 	{:else if loading || !place}
 		<div class="flex items-center gap-2 text-sm opacity-80" role="status">
 			<span class="loading loading-spinner loading-sm" aria-hidden="true"></span>

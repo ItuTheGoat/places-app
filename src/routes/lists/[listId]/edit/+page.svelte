@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { superValidate } from 'sveltekit-superforms';
@@ -193,7 +192,7 @@
 
 	{#if loadError}
 		<div class="alert alert-error text-sm" role="alert">{loadError}</div>
-		<p class="text-sm"><a href={resolve('/')} class="link link-primary">Back to home</a></p>
+		<p class="text-sm"><a href="/" class="link link-primary">Back to home</a></p>
 	{:else if loading || !list || !validated}
 		<div class="flex items-center gap-2 text-sm opacity-80" role="status">
 			<span class="loading loading-spinner loading-sm" aria-hidden="true"></span>

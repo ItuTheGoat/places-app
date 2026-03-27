@@ -18,6 +18,8 @@ export default [
 	{
 		files: ['**/*.{ts,tsx,js,jsx,svelte}'],
 		rules: {
+			// App is hosted at domain root (no kit.paths.base); use plain paths for goto/href.
+			'svelte/no-navigation-without-resolve': 'off',
 			'no-unused-vars': 'off',
 			'@typescript-eslint/no-unused-vars': [
 				'warn',

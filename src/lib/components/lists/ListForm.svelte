@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
 	import { setMessage, superForm } from 'sveltekit-superforms';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import { listFormZodClient } from '$lib/schemas/listForm';
@@ -66,6 +65,6 @@
 			{/if}
 			{submitLabel}
 		</button>
-		<a href={resolve('/')} class="btn btn-ghost">Cancel</a>
+		<a href="/" class="btn btn-ghost">Cancel</a>
 	</div>
 </form>

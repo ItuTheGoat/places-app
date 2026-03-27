@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { superValidate } from 'sveltekit-superforms';
 	import type { SuperValidated } from 'sveltekit-superforms';
@@ -36,7 +35,7 @@
 	{#if !authStore.currentUser}
 		<div class="alert alert-warning text-sm" role="status">
 			Sign in to join a shared list.
-			<a href={resolve('/auth')} class="link link-primary ml-1">Go to sign in</a>
+			<a href="/auth" class="link link-primary ml-1">Go to sign in</a>
 		</div>
 	{:else if !validated}
 		<div class="flex items-center gap-2 text-sm opacity-80" role="status">

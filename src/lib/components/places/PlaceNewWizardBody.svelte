@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { setMessage, superForm } from 'sveltekit-superforms';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import { placeFormZodClient } from '$lib/schemas/placeForm';
@@ -90,7 +89,7 @@
 		if (!mainImageUrl) throw new Error('Could not resolve main image.');
 
 		await updatePlace(placeId, { imageUrls, mainImageUrl });
-		await goto(resolve('/'));
+		await goto('/');
 	}
 
 	async function goToImagesStep() {
@@ -124,7 +123,7 @@
 			>
 				Continue
 			</button>
-			<a href={resolve('/')} class="btn btn-ghost">Cancel</a>
+			<a href="/" class="btn btn-ghost">Cancel</a>
 		{:else}
 			<button type="button" class="btn btn-ghost" onclick={() => onStepChange(2)}>Back</button>
 			<button type="submit" class="btn btn-primary" disabled={$submitting || lists.length === 0}>
@@ -133,7 +132,7 @@
 				{/if}
 				Create place
 			</button>
-			<a href={resolve('/')} class="btn btn-ghost">Cancel</a>
+			<a href="/" class="btn btn-ghost">Cancel</a>
 		{/if}
 	</div>
 </form>

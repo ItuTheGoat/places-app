@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { setMessage, superForm } from 'sveltekit-superforms';
 	import type { SuperValidated } from 'sveltekit-superforms';
@@ -55,7 +54,7 @@
 			try {
 				await redeemListInvite(f.data.code, { uid, email });
 				recordInviteRedeemSuccess();
-				await goto(resolve('/'));
+				await goto('/');
 			} catch (e) {
 				const msg = e instanceof Error ? e.message : 'Could not join list.';
 				if (!msg.includes('already a member')) {
@@ -97,6 +96,6 @@
 			{/if}
 			Join list
 		</button>
-		<a href={resolve('/')} class="btn btn-ghost">Cancel</a>
+		<a href="/" class="btn btn-ghost">Cancel</a>
 	</div>
 </form>
