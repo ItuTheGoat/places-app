@@ -120,7 +120,7 @@
 			imageUrls,
 			mainImageUrl
 		});
-		await goto('/');
+		await goto(resolve(`/places/${place.id}`));
 	}
 </script>
 

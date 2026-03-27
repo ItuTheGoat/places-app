@@ -437,20 +437,38 @@
 	{:else}
 		<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 			{#each visiblePlaces as place (place.id)}
-				<div class="space-y-2">
+				<div class="group space-y-2">
 					<div class="flex items-baseline justify-between gap-3 px-0.5">
-						<h3 class="text-lg font-semibold leading-tight tracking-tight text-base-content">
-							{place.name}
-						</h3>
-						<span
-							class="shrink-0 rounded-full bg-base-200 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-base-content/50"
+						<a
+							href={resolve(`/places/${place.id}`)}
+							class="min-w-0 flex-1 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
 						>
-							{toTitleCase(place.priority)}
-						</span>
+							<h3
+								class="text-lg font-semibold leading-tight tracking-tight text-base-content underline-offset-2 group-hover:underline"
+							>
+								{place.name}
+							</h3>
+						</a>
+						<div class="flex shrink-0 items-center gap-1">
+							<span
+								class="shrink-0 rounded-full bg-base-200 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-base-content/50"
+							>
+								{toTitleCase(place.priority)}
+							</span>
+							<a
+								href={resolve(`/places/${place.id}/edit`)}
+								class="btn btn-ghost btn-xs opacity-80 hover:opacity-100"
+								aria-label="Edit {place.name}"
+							>
+								Edit
+							</a>
+						</div>
 					</div>
-					<article
-						class="overflow-hidden rounded-2xl bg-base-200 shadow-lg shadow-black/25 ring-1 ring-white/5"
+					<a
+						href={resolve(`/places/${place.id}`)}
+						class="block overflow-hidden rounded-2xl bg-base-200 shadow-lg shadow-black/25 ring-1 ring-white/5 transition hover:ring-primary/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
 					>
+					<article class="overflow-hidden">
 						<figure class="aspect-video w-full bg-base-300">
 							{#if place.imageUrl}
 								<img
@@ -485,6 +503,7 @@
 							</p>
 						</div>
 					</article>
+					</a>
 				</div>
 			{/each}
 		</div>

@@ -3,6 +3,7 @@ import {
 	arrayUnion,
 	collection,
 	deleteDoc,
+	deleteField,
 	doc,
 	getDoc,
 	getDocs,
@@ -19,7 +20,7 @@ import {
 import { db } from '$lib/firebase';
 import type { ListInviteCodeDoc } from '$lib/types/listInvite';
 import type { ListDoc } from '$lib/types/list';
-import type { PlaceDoc } from '$lib/types/place';
+import type { PlaceDoc, PlaceStatus } from '$lib/types/place';
 import { generateListInviteCode, INVITE_CODE_LEN, normalizeInviteCode } from '$lib/utils/inviteCode';
 
 type CreateListInput = {
@@ -238,6 +239,41 @@ export const updatePlace = async (
 ): Promise<void> => {
 	const placeRef = doc(db, 'places', placeId);
 	await updateDoc(placeRef, updates);
+};
+
+export const updatePlaceStatus = async (placeId: string, status: PlaceStatus): Promise<void> => {
+	const placeRef = doc(db, 'places', placeId);
+	if (status === 'visited') {
+		await updateDoc(placeRef, {
+			status,
+			visitedAt: serverTimestamp() as PlaceDoc['visitedAt']
+		});
+	} else {
+		await updateDoc(placeRef, {
+			status,
+			visitedAt: deleteField()
+		});
+	}
+};
+
+export type PlaceRatingReviewPayload = {
+	rating: number | null;
+	review: string;
+	wouldReturn: boolean | null;
+};
+
+/** Clears optional fields in Firestore when values are null (rating, wouldReturn) or review is empty. */
+export const updatePlaceRatingReview = async (
+	placeId: string,
+	{ rating, review, wouldReturn }: PlaceRatingReviewPayload
+): Promise<void> => {
+	const placeRef = doc(db, 'places', placeId);
+	const trimmed = review.trim();
+	await updateDoc(placeRef, {
+		rating: rating === null ? deleteField() : rating,
+		review: trimmed === '' ? deleteField() : trimmed,
+		wouldReturn: wouldReturn === null ? deleteField() : wouldReturn
+	});
 };
 
 type DeletePlaceOptions = {

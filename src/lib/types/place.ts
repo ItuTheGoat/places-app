@@ -34,5 +34,7 @@ export type PlaceDoc = {
 	createdAt: Timestamp;
 	visitedAt?: Timestamp;
 	rating?: number;
+	/** Short written opinion; one per place document (shared across list members). */
+	review?: string;
 	wouldReturn?: boolean;
 };
