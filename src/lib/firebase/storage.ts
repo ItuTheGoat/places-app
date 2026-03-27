@@ -1,11 +1,4 @@
-import {
-	deleteObject,
-	getDownloadURL,
-	listAll,
-	ref,
-	uploadBytes,
-	type StorageReference
-} from 'firebase/storage';
+import { deleteObject, getDownloadURL, listAll, ref, uploadBytes, type StorageReference } from 'firebase/storage';
 
 import { storage } from '$lib/firebase';
 
@@ -36,8 +29,9 @@ export const uploadPlaceImages = async (
 	return Promise.all(uploads);
 };
 
-export const deletePlaceImageByUrl = async (imageUrl: string): Promise<void> => {
-	const imageRef = ref(storage, imageUrl);
+/** `downloadUrl` must be a full `https://` or `gs://` URL from `getDownloadURL`. */
+export const deletePlaceImageByUrl = async (downloadUrl: string): Promise<void> => {
+	const imageRef = ref(storage, downloadUrl);
 	await deleteObject(imageRef);
 };
 

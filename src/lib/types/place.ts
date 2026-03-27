@@ -28,6 +28,8 @@ export type PlaceDoc = {
 	vibe?: PlaceVibe;
 	notes?: string;
 	imageUrls: string[];
+	/** Must be one of `imageUrls` when images are present. */
+	mainImageUrl?: string;
 	createdBy: string;
 	createdAt: Timestamp;
 	visitedAt?: Timestamp;

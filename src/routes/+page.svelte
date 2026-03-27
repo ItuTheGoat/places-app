@@ -1,13 +1,16 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { authStore } from '$lib/stores/auth.svelte';
+	import { getListsForUser, getPlacesForUser } from '$lib/firebase/firestore';
 	import PlaceFilterModal from '$lib/components/places/PlaceFilterModal.svelte';
 	import PlaceSortModal from '$lib/components/places/PlaceSortModal.svelte';
 	import {
 		buildPlacesUrlSearchParams,
 		parsePlacesUrlParams
 	} from '$lib/utils/placesUrlParams';
+	import type { PlaceDoc } from '$lib/types/place';
 	import type {
 		PlaceCategory,
 		PlaceFilterState,
@@ -16,7 +19,7 @@
 		PlaceStatus
 	} from '$lib/types/place';
 
-	type MockPlace = {
+	type PlaceFeedItem = {
 		id: string;
 		name: string;
 		category: PlaceCategory;
@@ -24,15 +27,13 @@
 		priority: PlacePriority;
 		location: string;
 		notes: string;
-		imageUrl: string;
+		imageUrl: string | null;
 		createdAt: number;
 	};
 
 	const PAGE_SIZE = 8;
-	const REFRESH_DELAY_MS = 450;
 	const LOAD_MORE_DELAY_MS = 500;
 	const LOAD_MORE_SKELETON_COUNT = 3;
-	const MOCK_BASE_TIME = Date.parse('2026-03-01T12:00:00Z');
 
 	const DEFAULT_FILTERS: PlaceFilterState = {
 		category: 'all',
@@ -45,55 +46,28 @@
 	const categories: PlaceCategory[] = ['restaurant', 'activity', 'experience'];
 	const statuses: PlaceStatus[] = ['want', 'planned', 'visited'];
 	const priorities: PlacePriority[] = ['low', 'medium', 'high'];
-	const locations = [
-		'Cape Town',
-		'Johannesburg',
-		'Pretoria',
-		'Durban',
-		'Port Elizabeth',
-		'Polokwane',
-		'Nelspruit',
-		'Bloemfontein'
-	];
-	const nameStarts = [
-		'Sunset',
-		'River',
-		'Urban',
-		'Golden',
-		'Hidden',
-		'Coastal',
-		'Forest',
-		'Skyline',
-		'Harbor',
-		'Willow'
-	];
-	const nameEnds = ['Spot', 'Cafe', 'Trail', 'Market', 'Lounge', 'Corner', 'Kitchen', 'Point'];
 
-	function generateMockPlaces(total: number): MockPlace[] {
-		return Array.from({ length: total }, (_, index) => {
-			const category = categories[index % categories.length];
-			const status = statuses[index % statuses.length];
-			const priority = priorities[index % priorities.length];
-			const location = locations[index % locations.length];
-			const start = nameStarts[index % nameStarts.length];
-			const end = nameEnds[(index + 2) % nameEnds.length];
-
-			return {
-				id: `mock-place-${index + 1}`,
-				name: `${start} ${end}`,
-				category,
-				status,
-				priority,
-				location,
-				notes: `Placeholder notes for ${start} ${end}.`,
-				imageUrl: `https://picsum.photos/seed/place-${index + 1}/640/360`,
-				createdAt: MOCK_BASE_TIME - index * 1000 * 60 * 45
-			};
-		});
+	function mapPlaceToFeedItem(p: PlaceDoc & { id: string }): PlaceFeedItem {
+		const main = p.mainImageUrl ?? (p.imageUrls?.length ? p.imageUrls[0] : null);
+		return {
+			id: p.id,
+			name: p.name,
+			category: p.category,
+			status: p.status,
+			priority: p.priority,
+			location: p.location?.trim() ?? '',
+			notes: p.notes ?? '',
+			imageUrl: main ?? null,
+			createdAt: p.createdAt.toMillis()
+		};
 	}
 
-	let allPlaces = $state<MockPlace[]>([]);
+	let allPlaces = $state<PlaceFeedItem[]>([]);
 	let placesLoaded = $state(false);
+	let placesError = $state<string | null>(null);
+	let userLists = $state<Array<{ id: string; name: string; ownerId: string }>>([]);
+	let listsLoaded = $state(false);
+	let listsError = $state<string | null>(null);
 
 	let visibleCount = $state(PAGE_SIZE);
 	let isRefreshing = $state(false);
@@ -101,7 +75,16 @@
 	let activeFilters = $state<PlaceFilterState>({ ...DEFAULT_FILTERS });
 	let activeSort = $state<PlaceSortKey>(DEFAULT_SORT);
 
-	function countMatchingFilters(places: MockPlace[], filters: PlaceFilterState): number {
+	const locationOptions = $derived.by(() => {
+		const set = new Set<string>();
+		for (const place of allPlaces) {
+			const loc = place.location.trim();
+			if (loc) set.add(loc);
+		}
+		return Array.from(set).sort((a, b) => a.localeCompare(b));
+	});
+
+	function countMatchingFilters(places: PlaceFeedItem[], filters: PlaceFilterState): number {
 		return places.filter((place) => {
 			if (filters.category !== 'all' && place.category !== filters.category) return false;
 			if (filters.status !== 'all' && place.status !== filters.status) return false;
@@ -127,29 +110,79 @@
 		});
 	}
 
+	async function loadPlaces() {
+		const uid = authStore.currentUser?.uid;
+		if (!uid) {
+			allPlaces = [];
+			placesLoaded = false;
+			placesError = null;
+			return;
+		}
+		placesError = null;
+		try {
+			const raw = await getPlacesForUser(uid);
+			allPlaces = raw.map(mapPlaceToFeedItem);
+			placesLoaded = true;
+		} catch (e) {
+			placesError = e instanceof Error ? e.message : 'Could not load places.';
+			allPlaces = [];
+			placesLoaded = true;
+		}
+	}
+
 	$effect(() => {
 		const user = authStore.currentUser;
 		if (!user) {
 			allPlaces = [];
 			placesLoaded = false;
+			placesError = null;
+			userLists = [];
+			listsLoaded = false;
+			listsError = null;
 			visibleCount = PAGE_SIZE;
 			activeFilters = { ...DEFAULT_FILTERS };
 			activeSort = DEFAULT_SORT;
 			return;
 		}
-		if (placesLoaded) return;
-		allPlaces = generateMockPlaces(36);
-		placesLoaded = true;
+		void loadPlaces();
 	});
 
 	$effect(() => {
-		if (!placesLoaded || allPlaces.length === 0) return;
+		const uid = authStore.currentUser?.uid;
+		if (!uid) return;
+		let cancelled = false;
+		listsLoaded = false;
+		listsError = null;
+		void (async () => {
+			try {
+				const loaded = await getListsForUser(uid);
+				if (cancelled) return;
+				userLists = loaded.map((list) => ({
+					id: list.id,
+					name: list.name,
+					ownerId: list.ownerId
+				}));
+			} catch (e) {
+				if (!cancelled) {
+					listsError = e instanceof Error ? e.message : 'Could not load lists.';
+				}
+			} finally {
+				if (!cancelled) listsLoaded = true;
+			}
+		})();
+		return () => {
+			cancelled = true;
+		};
+	});
+
+	$effect(() => {
+		if (!placesLoaded) return;
 		void page.url.search;
 		const parsed = parsePlacesUrlParams(page.url.searchParams, {
 			categories,
 			statuses,
 			priorities,
-			locations,
+			locations: locationOptions,
 			defaultSort: DEFAULT_SORT
 		});
 		const matchCount = countMatchingFilters(allPlaces, parsed.filters);
@@ -208,7 +241,7 @@
 	async function refreshPlaces() {
 		if (!placesLoaded || isRefreshing || isLoadingMore) return;
 		isRefreshing = true;
-		await new Promise((resolve) => setTimeout(resolve, REFRESH_DELAY_MS));
+		await loadPlaces();
 		visibleCount = PAGE_SIZE;
 		isRefreshing = false;
 		await syncPlacesUrl();
@@ -252,16 +285,24 @@
 	}
 </script>
 
-<section class="space-y-4">
+<section class="space-y-4 pb-24">
 	<div class="flex flex-wrap items-center justify-between gap-3">
 		<h2 class="text-2xl font-bold">Places</h2>
 		<div class="flex flex-wrap items-center gap-2">
+			<a href="/lists/new" class="btn btn-ghost btn-sm">
+				<i class="fa-solid fa-list-ul mr-2" aria-hidden="true"></i>
+				New list
+			</a>
+			<a href="/lists/join" class="btn btn-ghost btn-sm">
+				<i class="fa-solid fa-ticket mr-2" aria-hidden="true"></i>
+				Join list
+			</a>
 			<PlaceFilterModal
 				value={activeFilters}
 				categories={categories}
 				statuses={statuses}
 				priorities={priorities}
-				locations={locations}
+				locations={locationOptions}
 				active={hasActiveFilters}
 				disabled={!placesLoaded || isRefreshing || isLoadingMore}
 				onApply={applyFilters}
@@ -290,6 +331,10 @@
 		</div>
 	</div>
 
+	{#if placesError}
+		<div class="alert alert-error text-sm" role="alert">{placesError}</div>
+	{/if}
+
 	<p class="text-sm opacity-75">
 		{#if !placesLoaded}
 			Loading places…
@@ -297,6 +342,34 @@
 			Showing {displayedCount} of {sortedPlaces.length} places.
 		{/if}
 	</p>
+
+	<div class="rounded-2xl border border-base-300 bg-base-200/40 p-4">
+		<div class="mb-3 flex items-center justify-between gap-3">
+			<h3 class="text-sm font-semibold">Your shared lists</h3>
+			<a href="/lists/new" class="link link-primary text-xs">Create list</a>
+		</div>
+		{#if listsError}
+			<div class="alert alert-error text-sm" role="alert">{listsError}</div>
+		{:else if !listsLoaded}
+			<div class="flex items-center gap-2 text-sm opacity-80" role="status">
+				<span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+				Loading lists…
+			</div>
+		{:else if userLists.length === 0}
+			<p class="text-sm opacity-70">No shared lists yet. Create one to organize places.</p>
+		{:else}
+			<ul class="space-y-2">
+				{#each userLists as list (list.id)}
+					<li class="flex items-center justify-between gap-3 rounded-xl bg-base-100 px-3 py-2">
+						<span class="truncate text-sm font-medium">{list.name}</span>
+						{#if list.ownerId === authStore.currentUser?.uid}
+							<a class="btn btn-ghost btn-xs" href={`/lists/${list.id}/edit`}>Edit</a>
+						{/if}
+					</li>
+				{/each}
+			</ul>
+		{/if}
+	</div>
 
 	{#if !placesLoaded}
 		<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -342,16 +415,25 @@
 				</div>
 			{/each}
 		</div>
-	{:else if visiblePlaces.length === 0}
-		<div class="alert">
-			<span>
-				{#if hasActiveFilters}
-					No places match your current filters.
-				{:else}
-					No places yet. Refresh to load mock data.
-				{/if}
-			</span>
-		</div>
+	{:else if sortedPlaces.length === 0}
+		{#if hasActiveFilters}
+			<div class="alert">
+				<span>No places match your current filters.</span>
+			</div>
+		{:else}
+			<div
+				class="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-base-300 bg-base-200/30 px-6 py-12 text-center"
+			>
+				<p class="text-base font-medium text-base-content/80">No places yet</p>
+				<p class="max-w-sm text-sm opacity-70">
+					Add your first place to a shared list and it will show up here.
+				</p>
+				<a href={resolve('/places/new')} class="btn btn-primary">
+					<i class="fa-solid fa-plus mr-2" aria-hidden="true"></i>
+					Create place
+				</a>
+			</div>
+		{/if}
 	{:else}
 		<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 			{#each visiblePlaces as place (place.id)}
@@ -370,14 +452,28 @@
 						class="overflow-hidden rounded-2xl bg-base-200 shadow-lg shadow-black/25 ring-1 ring-white/5"
 					>
 						<figure class="aspect-video w-full bg-base-300">
-							<img src={place.imageUrl} alt="" class="h-full w-full object-cover" loading="lazy" />
+							{#if place.imageUrl}
+								<img
+									src={place.imageUrl}
+									alt=""
+									class="h-full w-full object-cover"
+									loading="lazy"
+								/>
+							{:else}
+								<div
+									class="flex h-full min-h-[8rem] w-full items-center justify-center bg-base-300"
+									aria-hidden="true"
+								>
+									<i class="fa-solid fa-image text-4xl opacity-25"></i>
+								</div>
+							{/if}
 						</figure>
 						<div class="space-y-3 p-4">
 							<p
 								class="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-secondary"
 								aria-label="Location"
 							>
-								{place.location}
+								{place.location || '—'}
 							</p>
 							<p class="text-sm font-medium text-base-content/90">
 								<span class="text-primary">{toTitleCase(place.category)}</span>
@@ -418,7 +514,7 @@
 	{/if}
 
 	<div class="pt-2">
-		{#if placesLoaded && hasMore}
+		{#if placesLoaded && sortedPlaces.length > 0 && hasMore}
 			<button
 				class="btn btn-primary w-full sm:w-auto"
 				type="button"
@@ -432,8 +528,16 @@
 					Get more
 				{/if}
 			</button>
-		{:else if placesLoaded}
-			<p class="text-sm opacity-70">You have reached the end of the mock list.</p>
+		{:else if placesLoaded && sortedPlaces.length > 0}
+			<p class="text-sm opacity-70">You have reached the end of the list.</p>
 		{/if}
 	</div>
+
+	<a
+		href={resolve('/places/new')}
+		class="btn btn-primary btn-circle fixed bottom-6 right-4 z-50 shadow-lg md:bottom-8 md:right-8"
+		aria-label="Create new place"
+	>
+		<i class="fa-solid fa-plus text-lg" aria-hidden="true"></i>
+	</a>
 </section>
