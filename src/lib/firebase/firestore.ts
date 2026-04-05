@@ -131,7 +131,7 @@ export const redeemListInvite = async (
 ): Promise<string> => {
 	const code = normalizeInviteCode(rawCode);
 	if (code.length !== INVITE_CODE_LEN) {
-		throw new Error(`Enter a ${INVITE_CODE_LEN}-character code.`);
+		throw new Error(`Enter the full ${INVITE_CODE_LEN}-character invite code.`);
 	}
 
 	const emailForRules = email ?? '';
@@ -141,18 +141,18 @@ export const redeemListInvite = async (
 	return runTransaction(db, async (transaction) => {
 		const inviteSnap = await transaction.get(inviteRef);
 		if (!inviteSnap.exists()) {
-			throw new Error('Invalid or expired invite code.');
+			throw new Error('Check the invite code and try again.');
 		}
 
 		const invite = inviteSnap.data() as ListInviteCodeDoc;
 		if (invite.consumed) {
-			throw new Error('This invite code has already been used.');
+			throw new Error('This code was already used. Ask for a new invite code.');
 		}
 
 		const listRef = doc(db, 'lists', invite.listId);
 		const listSnap = await transaction.get(listRef);
 		if (!listSnap.exists()) {
-			throw new Error('This list no longer exists.');
+			throw new Error('This invite is no longer valid. Ask for a new invite code.');
 		}
 
 		const list = listSnap.data() as ListDoc;

@@ -50,21 +50,21 @@
 			if (!f.valid) return;
 			const imgs = imageItems;
 			if (imgs.length === 0) {
-				setMessage(f, 'Add at least one image and pick a main image.');
+				setMessage(f, 'Add at least one image.');
 				return;
 			}
 			if (imgs.length > MAX_PLACE_IMAGES) {
-				setMessage(f, `You can add at most ${MAX_PLACE_IMAGES} images.`);
+				setMessage(f, 'Remove some images and try again.');
 				return;
 			}
 			for (const item of imgs) {
 				if (item.kind === 'new' && item.file.size > MAX_PLACE_IMAGE_BYTES) {
-					setMessage(f, 'Each image must be 5 MB or smaller.');
+					setMessage(f, 'Use an image smaller than 5 MB.');
 					return;
 				}
 			}
 			if (!mainImageId || !imgs.some((i) => i.id === mainImageId)) {
-				setMessage(f, 'Select a main image.');
+				setMessage(f, 'Choose a main image.');
 				return;
 			}
 			setMessage(f, undefined);
