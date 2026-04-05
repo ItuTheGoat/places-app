@@ -14,10 +14,10 @@ export const inviteCodeFormSchema = z.object({
 		.pipe(
 			z
 				.string()
-				.length(INVITE_CODE_LEN, `Enter an ${INVITE_CODE_LEN}-character code.`)
+				.length(INVITE_CODE_LEN, `Enter the full ${INVITE_CODE_LEN}-character invite code.`)
 				.refine(
 					(s) => isValidCrockfordInviteCode(s),
-					'Use Crockford Base32 only (no I, L, O, U).'
+					'Use only the letters and numbers in your invite code.'
 				)
 		)
 });

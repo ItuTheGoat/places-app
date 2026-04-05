@@ -33,7 +33,7 @@
 			wouldReturn: wouldReturnChecked ? true : null
 		});
 		if (!parsed.success) {
-			error = parsed.error.issues[0]?.message ?? 'Invalid input.';
+			error = parsed.error.issues[0]?.message ?? 'Check your rating and review, then try again.';
 			saving = false;
 			return;
 		}

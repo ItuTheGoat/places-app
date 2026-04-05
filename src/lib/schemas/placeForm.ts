@@ -29,17 +29,17 @@ const emptyToUndefined = (v: string | undefined): string | undefined => {
  * Uses **Zod 3** stable (`zod` package) with `sveltekit-superforms` `zod` / `zodClient` adapters.
  */
 export const placeFormSchema = z.object({
-	listId: z.string().min(1, 'Select a list.'),
-	name: z.string().min(1, 'Name is required.').max(200),
+	listId: z.string().min(1, 'Choose a list.'),
+	name: z.string().min(1, 'Enter a place name.').max(200, 'Shorten the place name.'),
 	category: z.enum(PLACE_CATEGORIES),
 	status: z.enum(PLACE_STATUSES),
 	priority: z.enum(PLACE_PRIORITIES),
-	location: z.string().max(500),
+	location: z.string().max(500, 'Shorten the location.'),
 	mapsUrl: z
-		.union([z.literal(''), z.string().url('Enter a valid URL or leave blank.')])
+		.union([z.literal(''), z.string().url('Enter a valid link, or leave this blank.')])
 		.default(''),
 	vibe: z.union([z.literal(''), z.enum(PLACE_VIBES)]).default(''),
-	notes: z.string().max(5000)
+	notes: z.string().max(5000, 'Shorten the notes.')
 });
 
 /**
